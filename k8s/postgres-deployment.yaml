@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckdci-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ckdci-db
+  template:
+    metadata:
+      labels:
+        app: ckdci-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: "ckdci"
+            - name: POSTGRES_PASSWORD
+              value: "ckdci"
+            - name: POSTGRES_DB
+              value: "ckdci"

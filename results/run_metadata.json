@@ -1,0 +1,58 @@
+{
+  "run_id": "20260328_164832_4a00f5",
+  "created_utc": "2026-03-28T16:49:02.130920Z",
+  "config": {
+    "random_state": 42,
+    "dataset_size": 2000,
+    "test_size": 0.2,
+    "best_model": "Logistic Regression",
+    "class1_threshold": 0.15
+  },
+  "config_hash": "cba335ecebfb",
+  "best_model_metrics": {
+    "Model": "Logistic Regression",
+    "Accuracy": 0.6775,
+    "AUC-ROC": 0.8948416666666665,
+    "Precision (Weighted)": 0.6771473602327529,
+    "Recall (Weighted)": 0.6775,
+    "F1-Score (Weighted)": 0.6770753658343956,
+    "Log Loss": 0.6966154261575972
+  },
+  "class1_tuning": {
+    "class1_recall": 0.96,
+    "class1_precision": 0.4304932735426009,
+    "class1_f1": 0.5944272445820433
+  },
+  "calibration": [
+    {
+      "class": 0,
+      "label": "No Cognitive Risk",
+      "brier_score": 0.0660360315980812
+    },
+    {
+      "class": 1,
+      "label": "Low Cognitive Risk",
+      "brier_score": 0.1312799396647776
+    },
+    {
+      "class": 2,
+      "label": "Moderate Cognitive Risk",
+      "brier_score": 0.14523610996793868
+    },
+    {
+      "class": 3,
+      "label": "High Cognitive Risk",
+      "brier_score": 0.08208508043188567
+    }
+  ],
+  "external_validation": {},
+  "artifacts": {
+    "comparison": "results\\model_comparison.csv",
+    "feature_importance": "results\\feature_importance.csv",
+    "calibration": "results\\calibration_metrics.csv",
+    "drift_report": "",
+    "best_model": "results\\best_model.pkl",
+    "scaler": "results\\scaler.pkl",
+    "bundle": "results\\model_bundle.pkl"
+  }
+}

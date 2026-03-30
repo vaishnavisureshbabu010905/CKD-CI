@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckdci-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ckdci-dashboard
+  template:
+    metadata:
+      labels:
+        app: ckdci-dashboard
+    spec:
+      containers:
+        - name: dashboard
+          image: ckdci_dashboard:latest
+          ports:
+            - containerPort: 8501

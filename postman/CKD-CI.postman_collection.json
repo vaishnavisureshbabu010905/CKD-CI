@@ -1,0 +1,160 @@
+{
+  "info": {
+    "_postman_id": "1d9a3f2a-7e2c-4ec3-9f62-f3d2691f483a",
+    "name": "CKD-CI API Collection",
+    "description": "Postman collection for CKD-CI FastAPI service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 2000ms', function () { pm.expect(pm.response.responseTime).to.be.below(2000); });",
+              "var json = pm.response.json();",
+              "pm.test('Has status=ok', function () { pm.expect(json.status).to.eql('ok'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Predict Single Patient",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 3000ms', function () { pm.expect(pm.response.responseTime).to.be.below(3000); });",
+              "var json = pm.response.json();",
+              "pm.test('Has required prediction fields', function () {",
+              "  pm.expect(json).to.have.property('predicted_class');",
+              "  pm.expect(json).to.have.property('predicted_label');",
+              "  pm.expect(json).to.have.property('probabilities');",
+              "  pm.expect(json).to.have.property('confidence');",
+              "});",
+              "pm.test('Class is in range 0-3', function () { pm.expect(json.predicted_class).to.be.within(0, 3); });",
+              "pm.test('Confidence in [0,1]', function () { pm.expect(json.confidence).to.be.within(0, 1); });",
+              "pm.test('Probability keys exist', function () {",
+              "  pm.expect(json.probabilities).to.have.property('class_0');",
+              "  pm.expect(json.probabilities).to.have.property('class_1');",
+              "  pm.expect(json.probabilities).to.have.property('class_2');",
+              "  pm.expect(json.probabilities).to.have.property('class_3');",
+              "});",
+              "pm.test('Probabilities sum near 1', function () {",
+              "  var p = json.probabilities;",
+              "  var s = p.class_0 + p.class_1 + p.class_2 + p.class_3;",
+              "  pm.expect(s).to.be.within(0.999, 1.001);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"age\": 68,\n  \"education_years\": 10,\n  \"gender\": 1,\n  \"eGFR\": 42,\n  \"creatinine\": 1.8,\n  \"bun\": 32,\n  \"uacr\": 420,\n  \"hemoglobin\": 10.8,\n  \"albumin\": 3.3,\n  \"hsCRP\": 4.8,\n  \"potassium\": 4.7,\n  \"phosphate\": 4.9,\n  \"calcium\": 9.0,\n  \"systolic_bp\": 152,\n  \"bmi\": 29.4,\n  \"diabetes\": 1,\n  \"hypertension\": 1,\n  \"cvd\": 1\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "predict"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Predict Batch",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Response time < 5000ms', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });",
+              "var json = pm.response.json();",
+              "pm.test('Has count and predictions', function () {",
+              "  pm.expect(json).to.have.property('count');",
+              "  pm.expect(json).to.have.property('predictions');",
+              "  pm.expect(json.predictions).to.be.an('array');",
+              "});",
+              "pm.test('Count matches predictions length', function () {",
+              "  pm.expect(json.count).to.eql(json.predictions.length);",
+              "});",
+              "pm.test('Each prediction has required fields', function () {",
+              "  json.predictions.forEach(function (item) {",
+              "    pm.expect(item).to.have.property('row_index');",
+              "    pm.expect(item).to.have.property('predicted_class');",
+              "    pm.expect(item).to.have.property('predicted_label');",
+              "    pm.expect(item).to.have.property('confidence');",
+              "    pm.expect(item).to.have.property('probabilities');",
+              "    pm.expect(item.predicted_class).to.be.within(0, 3);",
+              "    pm.expect(item.confidence).to.be.within(0, 1);",
+              "    var p = item.probabilities;",
+              "    var s = p.class_0 + p.class_1 + p.class_2 + p.class_3;",
+              "    pm.expect(s).to.be.within(0.999, 1.001);",
+              "  });",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"records\": [\n    {\n      \"age\": 68,\n      \"education_years\": 10,\n      \"gender\": 1,\n      \"eGFR\": 42,\n      \"creatinine\": 1.8,\n      \"bun\": 32,\n      \"uacr\": 420,\n      \"hemoglobin\": 10.8,\n      \"albumin\": 3.3,\n      \"hsCRP\": 4.8,\n      \"potassium\": 4.7,\n      \"phosphate\": 4.9,\n      \"calcium\": 9.0,\n      \"systolic_bp\": 152,\n      \"bmi\": 29.4,\n      \"diabetes\": 1,\n      \"hypertension\": 1,\n      \"cvd\": 1\n    },\n    {\n      \"age\": 45,\n      \"education_years\": 15,\n      \"gender\": 0,\n      \"eGFR\": 92,\n      \"creatinine\": 0.9,\n      \"bun\": 14,\n      \"uacr\": 18,\n      \"hemoglobin\": 13.9,\n      \"albumin\": 4.4,\n      \"hsCRP\": 0.6,\n      \"potassium\": 4.1,\n      \"phosphate\": 3.2,\n      \"calcium\": 9.5,\n      \"systolic_bp\": 118,\n      \"bmi\": 23.1,\n      \"diabetes\": 0,\n      \"hypertension\": 0,\n      \"cvd\": 0\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/predict-batch",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "predict-batch"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

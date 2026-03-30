@@ -1,0 +1,52 @@
+# Python virtual environments
+.venv/
+.venv*/
+venv/
+env/
+
+# Python cache/build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Local databases and runtime outputs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+logs/*.log
+logs/*.err.log
+
+# Test and coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# IDE/editor artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Node artifacts
+node_modules/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
