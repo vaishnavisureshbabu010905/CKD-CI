@@ -11,6 +11,8 @@ from schemas.prediction import PredictionRequest, PredictionResponse, BatchPredi
 from models.patient import Patient
 from services.prediction_service import PredictionService
 from core.validation import validate_features
+from services.audit_service import log_audit
+from services.timeline_service import record_event
 
 router = APIRouter(tags=["predictions"])
 logger = logging.getLogger(__name__)
@@ -62,6 +64,16 @@ def predict_single(payload: PredictionRequest, db: Session = Depends(get_db), cu
 
         svc = PredictionService(db=db, user=current_user)
         res = svc.predict_single(patient, payload.features)
+        if patient.id:
+            record_event(
+                db,
+                patient_id=patient.id,
+                source_type="prediction",
+                source_id=res.get("prediction_id"),
+                summary=f"Prediction {res.get('predicted_label')}",
+                payload={"probabilities": res.get("probabilities")},
+            )
+        log_audit(db, current_user, action="predict_single", resource_type="prediction", resource_id=str(res.get("prediction_id")))
         return {
             "prediction_id": res["prediction_id"],
             "patient_identifier": res.get("patient_identifier"),

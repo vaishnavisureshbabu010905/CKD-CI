@@ -1,0 +1,33 @@
+{
+  "name": "ckdci-desktop",
+  "version": "1.0.0",
+  "main": "electron/main.js",
+  "private": true,
+  "scripts": {
+    "desktop": "cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
+    "desktop:dev": "cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
+    "desktop:build": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "cross-env": "7.0.3",
+    "electron": "29.1.4",
+    "electron-builder": "24.13.3"
+  },
+  "build": {
+    "appId": "com.ckdci.clinical",
+    "productName": "CKD-CI Clinical Desktop",
+    "asar": true,
+    "files": [
+      "electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "signAndEditExecutable": false,
+      "verifyUpdateCodeSignature": false
+    }
+  }
+}

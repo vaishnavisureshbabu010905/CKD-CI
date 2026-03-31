@@ -17,10 +17,19 @@ from api.routes import admin as admin_routes
 from api.routes import monitoring as monitoring_routes
 from api.routes import explain as explain_routes
 from api.routes import clinical_ops as clinical_ops_routes
+from api.routes import alerts as alerts_routes
+from api.routes import notes_tasks as notes_tasks_routes
+from api.routes import chat as chat_routes
+from api.routes import audit as audit_routes
+from api.routes import timeline as timeline_routes
 
 from core.logging_config import configure_logging, get_logger
 from core.middleware import RequestIDMiddleware
 from core.middleware import RequestSizeLimitMiddleware, RequestTimeoutMiddleware
+from db.base import Base
+from db.session import engine, SessionLocal
+import models  # noqa: F401
+from services.demo_data import ensure_demo_data
 
 
 def create_app() -> FastAPI:
@@ -63,10 +72,27 @@ def create_app() -> FastAPI:
     app.include_router(monitoring_routes.router)
     app.include_router(explain_routes.router)
     app.include_router(clinical_ops_routes.router)
+    app.include_router(alerts_routes.router)
+    app.include_router(notes_tasks_routes.router)
+    app.include_router(chat_routes.router)
+    app.include_router(audit_routes.router)
+    app.include_router(timeline_routes.router)
 
     @app.get("/health")
     def health():
         return {"status": "ok"}
+
+    @app.on_event("startup")
+    def startup_bootstrap() -> None:
+        # Local/dev safety net: ensure required tables exist even if migrations were skipped.
+        if str(settings.ENV).lower() == "production":
+            return
+        Base.metadata.create_all(bind=engine)
+        db = SessionLocal()
+        try:
+            ensure_demo_data(db)
+        finally:
+            db.close()
 
     @app.get("/ready")
     def ready():

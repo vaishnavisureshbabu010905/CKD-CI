@@ -2,19 +2,22 @@ from typing import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine import Engine
-from sqlalchemy.pool import NullPool
 
 from config.settings import settings
 
 
-# Create engine. In production, tune pool size appropriately or use
-# a connection pool provided by the environment. We use pool_pre_ping
-# to help avoid stale connections.
 def _create_engine() -> Engine:
-    # For simple local deployments, the default pool is sufficient. If you
-    # prefer no pooling (e.g., serverless), switch to NullPool.
+    """Create the SQLAlchemy engine with sensible defaults.
+
+    For local/dev we use a small pool; production can override via envs.
+    """
     return create_engine(
-        settings.DATABASE_URL, pool_pre_ping=True, future=True
+        settings.DATABASE_URL,
+        pool_pre_ping=True,
+        future=True,
+        echo=settings.DB_ECHO,
+        pool_size=settings.DB_POOL_SIZE if "sqlite" not in settings.DATABASE_URL else None,
+        max_overflow=settings.DB_MAX_OVERFLOW if "sqlite" not in settings.DATABASE_URL else None,
     )
 
 
@@ -26,9 +29,7 @@ SessionLocal = sessionmaker(
 
 
 def get_db() -> Generator:
-    """FastAPI dependency that yields a database session and ensures
-    it is closed after use.
-    """
+    """FastAPI dependency that yields a database session and ensures it is closed."""
     db = SessionLocal()
     try:
         yield db

@@ -4,7 +4,7 @@ class Settings:
     MODEL_VERSION: str = "2.0"
     REQUEST_TIMEOUT: int = 10
 from functools import lru_cache
-from typing import Optional
+from typing import Optional, List
 
 try:
     from pydantic_settings import SettingsConfigDict
@@ -32,19 +32,29 @@ class Settings(BaseSettings):
     DEBUG: bool = Field(False, env="DEBUG")
 
     # Database
-    # Default to an in-memory sqlite for tests and quick runs; override via DATABASE_URL in production
     DATABASE_URL: str = Field("sqlite+pysqlite:///:memory:", env="DATABASE_URL")
+    DB_ECHO: bool = Field(False, env="DB_ECHO")
+    DB_POOL_SIZE: int = Field(10, env="DB_POOL_SIZE")
+    DB_MAX_OVERFLOW: int = Field(20, env="DB_MAX_OVERFLOW")
+
+    # Cache / realtime
+    REDIS_URL: str = Field("redis://localhost:6379/0", env="REDIS_URL")
 
     # Security
     SECRET_KEY: str = Field("dev-secret", env="SECRET_KEY")
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 1 day
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(60 * 24, env="ACCESS_TOKEN_EXPIRE_MINUTES")  # 1 day
+    ALLOWED_ORIGINS: List[str] = Field(default_factory=lambda: ["*"], env="ALLOWED_ORIGINS")
 
     # Optional monitoring / Sentry
     SENTRY_DSN: Optional[str] = None
 
     # App metadata
     APP_NAME: str = "CKD-CI"
+
+    # Observability
+    REQUEST_TIMEOUT_SECONDS: int = Field(10, env="REQUEST_TIMEOUT_SECONDS")
+    REQUEST_MAX_SIZE_MB: int = Field(5, env="REQUEST_MAX_SIZE_MB")
 
     if SettingsConfigDict is not None:
         model_config = SettingsConfigDict(

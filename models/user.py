@@ -15,7 +15,21 @@ from db.base import Base
 class UserRole:
     ADMIN = "admin"
     DOCTOR = "doctor"
+    NURSE = "nurse"
     LAB = "lab_technician"
+    RESEARCHER = "researcher"
+    ML_ENGINEER = "ml_engineer"
+
+    @classmethod
+    def choices(cls) -> tuple:
+        return (
+            cls.ADMIN,
+            cls.DOCTOR,
+            cls.NURSE,
+            cls.LAB,
+            cls.RESEARCHER,
+            cls.ML_ENGINEER,
+        )
 
 
 class User(Base):
@@ -26,7 +40,7 @@ class User(Base):
     full_name = Column(String(255), nullable=True)
     hashed_password = Column(String(512), nullable=False)
     role = Column(
-        SAEnum(UserRole.ADMIN, UserRole.DOCTOR, UserRole.LAB, name="user_roles"),
+        SAEnum(*UserRole.choices(), name="user_roles"),
         nullable=False,
         server_default=UserRole.DOCTOR,
     )

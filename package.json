@@ -1,0 +1,14 @@
+{
+  "name": "ckdci-platform",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "frontend:dev": "npm --prefix frontend run dev",
+    "desktop": "npm --prefix desktop run desktop",
+    "desktop:dev": "npm --prefix desktop run desktop:dev",
+    "desktop:up": "powershell -ExecutionPolicy Bypass -File ./scripts/start_desktop_dev.ps1",
+    "desktop:build": "npm --prefix desktop run desktop:build",
+    "desktop:build:desktop": "powershell -ExecutionPolicy Bypass -File ./scripts/build_desktop_exe.ps1",
+    "start-all": "powershell -ExecutionPolicy Bypass -File ./scripts/start_all.ps1"
+  }
+}
