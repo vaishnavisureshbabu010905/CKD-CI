@@ -3,12 +3,9 @@ REM Runs CKD-CI quick test and complete pipeline in sequence (standalone patched
 
 cd /d "%~dp0"
 
-set PYTHON_EXE=.venv312\Scripts\python.exe
-if not exist "%PYTHON_EXE%" (
-    echo [ERROR] %PYTHON_EXE% not found.
-    echo Create the environment first with: py -3.12 -m venv .venv312
-    exit /b 1
-)
+set PYTHON_EXE=python
+if exist "env\Scripts\python.exe" set PYTHON_EXE=env\Scripts\python.exe
+if exist ".venv\Scripts\python.exe" set PYTHON_EXE=.venv\Scripts\python.exe
 
 echo ========================================================================
 echo CKD-CI Sequential Runner

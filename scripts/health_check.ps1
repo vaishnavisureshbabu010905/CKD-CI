@@ -50,7 +50,10 @@ Write-Host ""
 
 # 2. Virtual environment
 Write-Host "${Cyan}Virtual Environment:${Reset}"
-$venvPath = ".\.venv312"
+$venvPath = ".\env"
+if (-not (Test-Path $venvPath)) {
+    $venvPath = ".\.venv"
+}
 if (Test-Path $venvPath) {
     Write-Check "Venv exists" $true $venvPath
 } else {

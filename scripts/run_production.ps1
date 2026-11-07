@@ -90,7 +90,10 @@ Write-Status "Python found" "success"
 
 # 2. Activate venv
 Write-Status "Step 2: Activating Python environment..." "info"
-$venvPath = ".\.venv312\Scripts\Activate.ps1"
+$venvPath = ".\env\Scripts\Activate.ps1"
+if (-not (Test-Path $venvPath)) {
+    $venvPath = ".\.venv\Scripts\Activate.ps1"
+}
 if (-not (Test-Path $venvPath)) {
     Write-Status "Virtual environment not found at $venvPath" "error"
     exit 1

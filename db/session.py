@@ -11,14 +11,21 @@ def _create_engine() -> Engine:
 
     For local/dev we use a small pool; production can override via envs.
     """
-    return create_engine(
-        settings.DATABASE_URL,
-        pool_pre_ping=True,
-        future=True,
-        echo=settings.DB_ECHO,
-        pool_size=settings.DB_POOL_SIZE if "sqlite" not in settings.DATABASE_URL else None,
-        max_overflow=settings.DB_MAX_OVERFLOW if "sqlite" not in settings.DATABASE_URL else None,
-    )
+    kwargs = {
+        "echo": settings.DB_ECHO,
+        "future": True,
+    }
+    if "sqlite" in settings.DATABASE_URL:
+        from sqlalchemy.pool import StaticPool
+        kwargs["connect_args"] = {"check_same_thread": False}
+        if ":memory:" in settings.DATABASE_URL:
+            kwargs["poolclass"] = StaticPool
+    else:
+        kwargs["pool_pre_ping"] = True
+        kwargs["pool_size"] = settings.DB_POOL_SIZE
+        kwargs["max_overflow"] = settings.DB_MAX_OVERFLOW
+
+    return create_engine(settings.DATABASE_URL, **kwargs)
 
 
 engine = _create_engine()

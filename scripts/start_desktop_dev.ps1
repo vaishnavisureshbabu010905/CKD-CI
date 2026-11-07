@@ -1,9 +1,11 @@
 $ErrorActionPreference = "Stop"
 
 $root = Split-Path -Parent $PSScriptRoot
-$venvPy = Join-Path $root ".venv\Scripts\python.exe"
-$venvPy312 = Join-Path $root ".venv312\Scripts\python.exe"
-$pythonExe = if (Test-Path $venvPy) { $venvPy } elseif (Test-Path $venvPy312) { $venvPy312 } else { "python" }
+$venvPy = Join-Path $root "env\Scripts\python.exe"
+if (-not (Test-Path $venvPy)) {
+    $venvPy = Join-Path $root ".venv\Scripts\python.exe"
+}
+$pythonExe = if (Test-Path $venvPy) { $venvPy } else { "python" }
 
 $backendDir = $root
 $frontendDir = Join-Path $root "frontend"

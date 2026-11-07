@@ -1,9 +1,9 @@
 import types
 from fastapi.testclient import TestClient
 
-from api_server import app
+from main import app
 from core.deps import get_current_user
-import api_server as api_server_module
+from db.session import get_db
 
 client = TestClient(app)
 
@@ -79,7 +79,7 @@ def test_models_admin_only():
 
             return Q()
 
-    api_server_module.SessionLocal = lambda: FakeDB()
+    app.dependency_overrides[get_db] = lambda: FakeDB()
     r = client.get("/models")
     assert r.status_code == 200
 

@@ -4,16 +4,14 @@
 
 ### 1. Start the API
 ```bash
-cd "c:\Users\hp\OneDrive\Documents\Downloads\CKD-CI (2)\CKD-CI"
-.venv312\Scripts\Activate.ps1
+.\env\Scripts\Activate.ps1
 python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 ### 2. Start the Dashboard
 ```bash
 # New terminal
-cd "c:\Users\hp\OneDrive\Documents\Downloads\CKD-CI (2)\CKD-CI"
-.venv312\Scripts\Activate.ps1
+.\env\Scripts\Activate.ps1
 streamlit run dashboard.py --server.port 8501
 ```
 

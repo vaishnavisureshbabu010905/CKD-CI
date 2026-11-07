@@ -45,7 +45,7 @@ Make sure:
 - ✓ Python 3.12+ is installed
 - ✓ PostgreSQL database is running
 - ✓ `.env` file is configured (copy from `.env.example` if needed)
-- ✓ Virtual environment is set up: `.venv312/`
+- ✓ Virtual environment is set up: `env/`
 - ✓ Dependencies are installed (run `pip install -r requirements.txt` if needed)
 
 ## Running Only the API (without Streamlit)

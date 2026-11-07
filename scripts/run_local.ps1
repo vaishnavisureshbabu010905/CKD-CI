@@ -65,7 +65,10 @@ function Start-ProcLog {
 Write-Host "Starting local services and streaming logs to files..."
 
 # determine python executable inside venv if exists
-$venvPython = Join-Path -Path (Get-Location) -ChildPath ".venv312\Scripts\python.exe"
+$venvPython = Join-Path -Path (Get-Location) -ChildPath "env\Scripts\python.exe"
+if (-not (Test-Path $venvPython)) {
+    $venvPython = Join-Path -Path (Get-Location) -ChildPath ".venv\Scripts\python.exe"
+}
 if (-not (Test-Path $venvPython)) {
     # fallback to python on PATH
     $venvPython = "python"

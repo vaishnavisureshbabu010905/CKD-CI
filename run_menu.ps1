@@ -8,7 +8,10 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $root
 
-$pythonExe = Join-Path $root '.venv312\Scripts\python.exe'
+$pythonExe = Join-Path $root 'env\Scripts\python.exe'
+if (-not (Test-Path $pythonExe)) {
+    $pythonExe = Join-Path $root '.venv\Scripts\python.exe'
+}
 if (-not (Test-Path $pythonExe)) {
     $pythonExe = 'python'
 }
