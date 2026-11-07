@@ -1,8 +1,3 @@
-class Settings:
-    API_URL: str = "http://127.0.0.1:8000"
-    ENV: str = "local"
-    MODEL_VERSION: str = "2.0"
-    REQUEST_TIMEOUT: int = 10
 from functools import lru_cache
 from typing import Optional, List
 
@@ -30,6 +25,9 @@ class Settings(BaseSettings):
 
     ENV: str = Field("development", env="ENV")
     DEBUG: bool = Field(False, env="DEBUG")
+    API_URL: str = Field("http://127.0.0.1:8000", env="API_URL")
+    MODEL_VERSION: str = Field("2.0", env="MODEL_VERSION")
+    REQUEST_TIMEOUT: int = Field(10, env="REQUEST_TIMEOUT")
 
     # Database
     DATABASE_URL: str = Field("sqlite+pysqlite:///:memory:", env="DATABASE_URL")

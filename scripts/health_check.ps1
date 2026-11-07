@@ -98,7 +98,6 @@ Write-Host ""
 Write-Host "${Cyan}Model Files:${Reset}"
 $modelFiles = @(
     "main.py",
-    "api_server.py",
     "dashboard.py",
     "api/routes/models.py",
     "api/routes/predictions.py",

@@ -75,7 +75,7 @@ if (-not (Test-Path $venvPython)) {
 Remove-Item -Path api.log, api.err, streamlit.log, streamlit.err -ErrorAction SilentlyContinue
 
 # Start API
-$apiArgs = "-m uvicorn api_server:app --host 127.0.0.1 --port 8000"
+$apiArgs = "-m uvicorn main:app --host 127.0.0.1 --port 8000"
 $apiPid = Start-ProcLog -Exe $venvPython -Args $apiArgs -OutLog "api.log" -ErrLog "api.err"
 if ($apiPid) { Write-Host "API started (pid $apiPid); logs: api.log / api.err" }
 

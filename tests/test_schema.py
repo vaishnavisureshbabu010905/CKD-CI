@@ -1,6 +1,6 @@
 import pandas as pd
 
-from infer_single_patient import FEATURE_COLUMNS, validate_columns, validate_ranges
+from core.validation import FEATURE_COLUMNS, validate_columns, validate_ranges
 
 
 def test_validate_columns_success():

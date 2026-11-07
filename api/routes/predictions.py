@@ -59,11 +59,13 @@ def predict_single(payload: PredictionRequest, db: Session = Depends(get_db), cu
         issues = validate_features(payload.features or {})
         if issues:
             raise HTTPException(status_code=400, detail={"validation_issues": issues})
+        from core.validation import normalize_feature_dict
+        clean_features = normalize_feature_dict(payload.features or {})
         # Resolve patient or safely create one.
-        patient = _get_or_create_patient(db, payload.patient_identifier, payload.features)
+        patient = _get_or_create_patient(db, payload.patient_identifier, clean_features)
 
         svc = PredictionService(db=db, user=current_user)
-        res = svc.predict_single(patient, payload.features)
+        res = svc.predict_single(patient, clean_features)
         if patient.id:
             record_event(
                 db,
@@ -98,14 +100,16 @@ def predict_batch(payload: BatchPredictionRequest, db: Session = Depends(get_db)
     try:
         svc = PredictionService(db=db, user=current_user)
         items = []
+        from core.validation import normalize_feature_dict
         for item in payload.items:
             # server-side validation for each item
             issues = validate_features(item.features or {})
             if issues:
                 raise HTTPException(status_code=400, detail={"validation_issues": issues, "patient_identifier": item.patient_identifier})
 
-            patient = _get_or_create_patient(db, item.patient_identifier, item.features)
-            items.append((patient, item.features))
+            clean_features = normalize_feature_dict(item.features or {})
+            patient = _get_or_create_patient(db, item.patient_identifier, clean_features)
+            items.append((patient, clean_features))
 
         results = svc.predict_batch(items)
 

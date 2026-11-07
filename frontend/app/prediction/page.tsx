@@ -20,15 +20,17 @@ type PredictionResponse = {
 
 const DEFAULT_FEATURES = {
   age: 62,
+  education_years: 12,
   gender: 1,
-  egfr: 42,
+  eGFR: 42,
   creatinine: 2.0,
   bun: 28,
   uacr: 300,
   hemoglobin: 10.5,
   albumin: 3.7,
+  hsCRP: 2.1,
   potassium: 4.6,
-  phosphorus: 4.2,
+  phosphate: 4.2,
   calcium: 9.1,
   systolic_bp: 142,
   bmi: 28.5,
@@ -39,10 +41,10 @@ const DEFAULT_FEATURES = {
 
 function normalizeFeatures(input: Record<string, unknown>) {
   const normalized = { ...DEFAULT_FEATURES, ...input } as Record<string, unknown>;
-  if ("eGFR" in normalized && !("egfr" in normalized)) normalized.egfr = normalized.eGFR;
-  if ("phosphate" in normalized && !("phosphorus" in normalized)) normalized.phosphorus = normalized.phosphate;
-  delete normalized.eGFR;
-  delete normalized.phosphate;
+  if ("egfr" in normalized && !("eGFR" in normalized)) normalized.eGFR = normalized.egfr;
+  if ("phosphorus" in normalized && !("phosphate" in normalized)) normalized.phosphate = normalized.phosphorus;
+  if ("hscrp" in normalized && !("hsCRP" in normalized)) normalized.hsCRP = normalized.hscrp;
+  if ("educationyears" in normalized && !("education_years" in normalized)) normalized.education_years = normalized.educationyears;
   return normalized;
 }
 

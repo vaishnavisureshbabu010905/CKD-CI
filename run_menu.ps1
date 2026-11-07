@@ -10,9 +10,7 @@ Set-Location $root
 
 $pythonExe = Join-Path $root '.venv312\Scripts\python.exe'
 if (-not (Test-Path $pythonExe)) {
-    Write-Host "[ERROR] Python executable not found: $pythonExe" -ForegroundColor Red
-    Write-Host "Create it with: py -3.12 -m venv .venv312" -ForegroundColor Yellow
-    exit 1
+    $pythonExe = 'python'
 }
 
 function Invoke-Step {
@@ -39,7 +37,7 @@ function Invoke-Dashboard {
 
 function Invoke-ApiServer {
     Write-Host "`n[RUN] FastAPI server" -ForegroundColor Cyan
-    & $pythonExe -m uvicorn api_server:app --host 0.0.0.0 --port 8000
+    & $pythonExe -m uvicorn main:app --host 0.0.0.0 --port 8000
     if ($LASTEXITCODE -ne 0) {
         Write-Host "[FAILED] API server launch" -ForegroundColor Red
         exit $LASTEXITCODE

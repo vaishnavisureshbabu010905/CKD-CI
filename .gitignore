@@ -47,6 +47,16 @@ Thumbs.db
 
 # Node artifacts
 node_modules/
+.next/
+frontend/.next/
+out/
+desktop/dist/
+*.tsbuildinfo
+
+# Plots and ad-hoc outputs
+*.png
+*.csv.bak
+pipeline_output.txt
 
 # Notebook checkpoints
 .ipynb_checkpoints/
