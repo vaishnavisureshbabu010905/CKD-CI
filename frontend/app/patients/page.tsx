@@ -51,7 +51,7 @@ function getAge(dateOfBirth?: string) {
   return age;
 }
 
-function normalizeRisk(value?: string): RiskFilter {
+function normalizeRisk(value?: string): "high" | "moderate" | "low" | "unknown" {
   const label = (value || "").toLowerCase();
   if (label.includes("high")) return "high";
   if (label.includes("moderate")) return "moderate";
