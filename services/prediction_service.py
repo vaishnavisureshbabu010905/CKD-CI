@@ -83,13 +83,18 @@ class PredictionService:
         classes = getattr(model, "classes_", None)
         if classes is None:
             classes = list(range(proba.shape[1]))
-        probs = {str(c): float(p) for c, p in zip(classes, proba[0].tolist())}
-        pred_idx = int(np.argmax(proba[0]))
-        predicted = str(classes[pred_idx])
-        confidence = float(proba[0][pred_idx])
-
+        
         label_map = getattr(self.model_bundle, "label_map", {}) or {}
-        human_label = label_map.get(predicted, predicted)
+        probs = {}
+        for c, p in zip(classes, proba[0].tolist()):
+            name = label_map.get(c, label_map.get(str(c), str(c)))
+            probs[name] = float(p)
+
+        pred_idx = int(np.argmax(proba[0]))
+        raw_pred = classes[pred_idx]
+        predicted = str(raw_pred)
+        human_label = label_map.get(raw_pred, label_map.get(str(raw_pred), str(raw_pred)))
+        confidence = float(proba[0][pred_idx])
 
         # Create DB record (SQLAlchemy model). If mapper/config isn't available
         # (tests may supply lightweight fake DBs), fall back to a simple object.

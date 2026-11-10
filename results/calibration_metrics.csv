@@ -1,5 +1,5 @@
-class,label,brier_score
-0,No Cognitive Risk,0.0660360315980812
-1,Low Cognitive Risk,0.1312799396647776
-2,Moderate Cognitive Risk,0.14523610996793868
-3,High Cognitive Risk,0.08208508043188567
+class,class_name,brier_score
+0,No Cognitive Risk,0.0865
+1,Low Cognitive Risk,0.1565
+2,Moderate Cognitive Risk,0.1123
+3,High Cognitive Risk,0.0539

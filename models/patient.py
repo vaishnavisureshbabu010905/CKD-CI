@@ -27,6 +27,7 @@ class Patient(Base):
     # re-scoring. Keep canonical feature columns in the prediction
     # service for model input ordering.
     features = Column(JSON, nullable=True)
+    medical_history = Column(JSON, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -2,27 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color: #e5e7eb;
-  background: #0f172a;
+@layer base {
+  :root {
+    --background: #F8FAFC;
+    --surface: #FFFFFF;
+    --primary: #16324F;
+    --teal: #0F766E;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --border: #E2E8F0;
+  }
+
+  body {
+    background-color: #F8FAFC;
+    color: #0F172A;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  /* Strict tabular numbers for medical lab data, metrics, and percentages */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
-body {
-  background: radial-gradient(circle at 20% 20%, rgba(14,165,233,0.08), transparent 25%),
-    radial-gradient(circle at 80% 10%, rgba(168,85,247,0.06), transparent 22%),
-    #0f172a;
-  color: #e5e7eb;
-  min-height: 100vh;
-}
-
-a {
-  color: inherit;
-}
-
-.scrollbar-thin::-webkit-scrollbar {
+/* Custom crisp medical scrollbar */
+::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #1f2937;
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
   border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }

@@ -1,58 +1,63 @@
 {
-  "run_id": "20260328_164832_4a00f5",
-  "created_utc": "2026-03-28T16:49:02.130920Z",
+  "run_id": "20261110_160339_7caf17",
+  "created_utc": "2026-11-10T16:03:46.400808Z",
   "config": {
     "random_state": 42,
-    "dataset_size": 2000,
+    "dataset_size": 2500,
     "test_size": 0.2,
     "best_model": "Logistic Regression",
-    "class1_threshold": 0.15
+    "class1_threshold": 0.32
   },
-  "config_hash": "cba335ecebfb",
+  "config_hash": "1d2349d96befd3ca",
   "best_model_metrics": {
     "Model": "Logistic Regression",
-    "Accuracy": 0.6775,
-    "AUC-ROC": 0.8948416666666665,
-    "Precision (Weighted)": 0.6771473602327529,
-    "Recall (Weighted)": 0.6775,
-    "F1-Score (Weighted)": 0.6770753658343956,
-    "Log Loss": 0.6966154261575972
+    "Accuracy": 0.7,
+    "Precision": 0.6523,
+    "Recall": 0.6706,
+    "F1-Macro": 0.6597,
+    "AUC-ROC": 0.8961,
+    "LogLoss": 0.6785,
+    "MeanBrier": 0.1023
   },
   "class1_tuning": {
-    "class1_recall": 0.96,
-    "class1_precision": 0.4304932735426009,
-    "class1_f1": 0.5944272445820433
+    "threshold": 0.32,
+    "f1": 0.6732,
+    "recall": 0.8562,
+    "precision": 0.5547
   },
   "calibration": [
     {
       "class": 0,
-      "label": "No Cognitive Risk",
-      "brier_score": 0.0660360315980812
+      "class_name": "No Cognitive Risk",
+      "brier_score": 0.0865
     },
     {
       "class": 1,
-      "label": "Low Cognitive Risk",
-      "brier_score": 0.1312799396647776
+      "class_name": "Low Cognitive Risk",
+      "brier_score": 0.1565
     },
     {
       "class": 2,
-      "label": "Moderate Cognitive Risk",
-      "brier_score": 0.14523610996793868
+      "class_name": "Moderate Cognitive Risk",
+      "brier_score": 0.1123
     },
     {
       "class": 3,
-      "label": "High Cognitive Risk",
-      "brier_score": 0.08208508043188567
+      "class_name": "High Cognitive Risk",
+      "brier_score": 0.0539
     }
   ],
-  "external_validation": {},
   "artifacts": {
     "comparison": "results\\model_comparison.csv",
     "feature_importance": "results\\feature_importance.csv",
     "calibration": "results\\calibration_metrics.csv",
-    "drift_report": "",
     "best_model": "results\\best_model.pkl",
     "scaler": "results\\scaler.pkl",
-    "bundle": "results\\model_bundle.pkl"
+    "bundle": "results\\model_bundle.pkl",
+    "individual_models": {
+      "random_forest": "models\\random_forest.pkl",
+      "xgboost": "models\\xgboost.pkl",
+      "catboost": "models\\catboost.pkl"
+    }
   }
 }

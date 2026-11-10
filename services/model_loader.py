@@ -52,11 +52,24 @@ class ModelBundle:
 
     @property
     def label_map(self) -> Dict[Any, str]:
-        return self.bundle.get("label_map", {})
+        return self.bundle.get("label_map") or self.bundle.get("risk_labels") or {
+            0: "No Cognitive Risk",
+            1: "Low Cognitive Risk",
+            2: "Moderate Cognitive Risk",
+            3: "High Cognitive Risk",
+            "0": "No Cognitive Risk",
+            "1": "Low Cognitive Risk",
+            "2": "Moderate Cognitive Risk",
+            "3": "High Cognitive Risk",
+        }
+
+    @property
+    def scaler(self):
+        return self.bundle.get("scaler")
 
     @property
     def version(self) -> str:
-        return self.bundle.get("version", "unknown")
+        return self.bundle.get("version") or self.bundle.get("run_id", "prod-v1.0")
 
     @property
     def metadata(self) -> Dict[str, Any]:
@@ -64,6 +77,19 @@ class ModelBundle:
 
     def predict_proba(self, X):
         model = self.model
+        scaler = self.scaler
+        if scaler is not None:
+            try:
+                import pandas as pd
+                cols = self.feature_columns
+                if cols and len(cols) == (len(X[0]) if hasattr(X, "__len__") and len(X) else 0):
+                    X_df = pd.DataFrame(X, columns=cols)
+                    X = scaler.transform(X_df)
+                else:
+                    X = scaler.transform(X)
+            except Exception:
+                pass
+
         if hasattr(model, "predict_proba"):
             return model.predict_proba(X)
         # fallback: if model only has predict, return one-hot like probabilities

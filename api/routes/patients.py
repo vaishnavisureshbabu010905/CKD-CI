@@ -1,4 +1,5 @@
-from typing import List
+from typing import List, Dict, Any
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
@@ -8,7 +9,14 @@ from models.patient import Patient
 from models.prediction import Prediction
 from models.alert import AlertEvent
 from models.note import Task
-from schemas.patient import PatientCreate, PatientRead
+from models.timeline import TimelineEvent
+from schemas.patient import (
+    PatientCreate,
+    PatientRead,
+    PatientUpdate,
+    ClinicalVisitCreate,
+    CognitiveAssessmentCreate,
+)
 
 router = APIRouter(prefix="/patients", tags=["patients"])
 
@@ -60,7 +68,7 @@ def _build_simple_pdf(lines: list[str]) -> bytes:
 
 
 @router.post("/", response_model=PatientRead)
-def create_patient(payload: PatientCreate, db: Session = Depends(get_db), current_user=Depends(require_role("lab_technician"))):
+def create_patient(payload: PatientCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     existing = db.query(Patient).filter(Patient.patient_identifier == payload.patient_identifier).first()
     if existing:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Patient already exists")
@@ -70,12 +78,163 @@ def create_patient(payload: PatientCreate, db: Session = Depends(get_db), curren
         last_name=payload.last_name,
         date_of_birth=payload.date_of_birth,
         sex=payload.sex,
+        medical_history=payload.medical_history,
         features=payload.features,
     )
     db.add(patient)
     db.commit()
     db.refresh(patient)
+
+    # Automatically add an intake timeline event
+    try:
+        intake_event = TimelineEvent(
+            patient_id=patient.id,
+            source_type="intake",
+            summary=f"Patient enrolled: {patient.first_name or ''} {patient.last_name or ''} ({patient.patient_identifier})",
+            payload={"medical_history": payload.medical_history or {}},
+        )
+        db.add(intake_event)
+        db.commit()
+    except Exception:
+        db.rollback()
+
     return patient
+
+
+@router.put("/{patient_id}", response_model=PatientRead)
+def update_patient(
+    patient_id: int,
+    payload: PatientUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if not patient:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found")
+
+    if payload.first_name is not None:
+        patient.first_name = payload.first_name
+    if payload.last_name is not None:
+        patient.last_name = payload.last_name
+    if payload.date_of_birth is not None:
+        patient.date_of_birth = payload.date_of_birth
+    if payload.sex is not None:
+        patient.sex = payload.sex
+    if payload.medical_history is not None:
+        patient.medical_history = payload.medical_history
+    if payload.features is not None:
+        current_features = dict(patient.features or {})
+        current_features.update(payload.features)
+        patient.features = current_features
+
+    db.commit()
+    db.refresh(patient)
+    return patient
+
+
+@router.post("/{patient_id}/visits", response_model=Dict[str, Any])
+def record_clinical_visit(
+    patient_id: int,
+    payload: ClinicalVisitCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if not patient:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found")
+
+    visit_dict = payload.dict(exclude_none=True)
+    visit_date = payload.visit_date or datetime.utcnow().strftime("%Y-%m-%d")
+
+    # Update patient's current telemetry features with newly recorded measurements
+    current_features = dict(patient.features or {})
+    for key in [
+        "systolic_bp", "bmi", "eGFR", "creatinine", "bun", "uacr",
+        "potassium", "phosphate", "calcium", "hemoglobin", "albumin", "hsCRP"
+    ]:
+        if key in visit_dict and visit_dict[key] is not None:
+            current_features[key] = visit_dict[key]
+    patient.features = current_features
+
+    # Log to longitudinal clinical timeline
+    summary_parts = []
+    if payload.eGFR is not None:
+        summary_parts.append(f"eGFR: {payload.eGFR}")
+    if payload.creatinine is not None:
+        summary_parts.append(f"Cr: {payload.creatinine}")
+    if payload.uacr is not None:
+        summary_parts.append(f"UACR: {payload.uacr}")
+    summary_text = f"Clinical Encounter Labs — {', '.join(summary_parts)}" if summary_parts else "Clinical Encounter Labs Recorded"
+
+    timeline_event = TimelineEvent(
+        patient_id=patient.id,
+        source_type="clinical_visit",
+        event_time=datetime.utcnow(),
+        summary=summary_text,
+        payload={
+            "visit_date": visit_date,
+            "measurements": visit_dict,
+            "notes": payload.notes or "Routine clinical visit",
+        },
+    )
+    db.add(timeline_event)
+    db.commit()
+    db.refresh(patient)
+
+    return {
+        "status": "success",
+        "message": "Clinical visit and laboratory measurements recorded successfully",
+        "patient_id": patient.id,
+        "features": patient.features,
+    }
+
+
+@router.post("/{patient_id}/cognitive-assessments", response_model=Dict[str, Any])
+def record_cognitive_assessment(
+    patient_id: int,
+    payload: CognitiveAssessmentCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if not patient:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found")
+
+    assessment_dict = payload.dict(exclude_none=True)
+    assessment_date = payload.assessment_date or datetime.utcnow().strftime("%Y-%m-%d")
+
+    # Note: Deliberately DOES NOT touch patient.features (input features for ML)
+    # to maintain strict separation and prevent predictive target leakage.
+    scores = []
+    if payload.moca_score is not None:
+        scores.append(f"MoCA: {payload.moca_score}/30")
+    if payload.mmse_score is not None:
+        scores.append(f"MMSE: {payload.mmse_score}/30")
+    if payload.clinical_outcome:
+        scores.append(f"Impression: {payload.clinical_outcome}")
+
+    summary_text = f"Cognitive Screening: {', '.join(scores)}" if scores else "Formal Cognitive Assessment"
+
+    timeline_event = TimelineEvent(
+        patient_id=patient.id,
+        source_type="cognitive_assessment",
+        event_time=datetime.utcnow(),
+        summary=summary_text,
+        payload={
+            "assessment_date": assessment_date,
+            "scores": assessment_dict,
+            "notes": payload.examiner_notes or "Formal neurocognitive screening performed",
+            "target_leakage_safeguard": "Isolated from AI model input features",
+        },
+    )
+    db.add(timeline_event)
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": "Cognitive assessment logged to clinical timeline (safeguarded against model target leakage)",
+        "patient_id": patient.id,
+    }
 
 
 @router.get("/{patient_id}", response_model=PatientRead)

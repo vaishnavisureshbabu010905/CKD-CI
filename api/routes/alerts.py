@@ -60,7 +60,7 @@ def create_event(payload: AlertEventCreate, db: Session = Depends(get_db), curre
 
 
 @router.post("/events/{event_id}/ack", response_model=AlertEventRead)
-def acknowledge_event(event_id: int, db: Session = Depends(get_db), current_user=Depends(require_doctor_or_admin)):
+def acknowledge_event(event_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     event = db.query(AlertEvent).filter(AlertEvent.id == event_id).first()
     if not event:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alert event not found")
@@ -72,6 +72,19 @@ def acknowledge_event(event_id: int, db: Session = Depends(get_db), current_user
     db.commit()
     db.refresh(event)
     log_audit(db, current_user, action="alert_ack", resource_type="alert_event", resource_id=str(event.id))
+    return event
+
+
+@router.post("/events/{event_id}/resolve", response_model=AlertEventRead)
+def resolve_event(event_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    event = db.query(AlertEvent).filter(AlertEvent.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alert event not found")
+    event.status = "resolved"
+    db.add(event)
+    db.commit()
+    db.refresh(event)
+    log_audit(db, current_user, action="alert_resolve", resource_type="alert_event", resource_id=str(event.id))
     return event
 
 
