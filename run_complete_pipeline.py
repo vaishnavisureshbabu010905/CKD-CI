@@ -114,6 +114,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="CKD-CI lightweight CPU training pipeline")
     parser.add_argument("--external-data", default="", help="Optional external CSV for validation/drift checks")
     parser.add_argument("--dataset-size", type=int, default=DATASET_SIZE)
+    parser.add_argument("--cv-folds", type=int, default=5, help="Number of cross-validation folds (default: 5)")
     return parser.parse_args()
 
 
