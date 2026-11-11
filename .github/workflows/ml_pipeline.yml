@@ -34,6 +34,7 @@ jobs:
       - name: Run tests
         env:
           DATABASE_URL: postgresql://ckdci:ckdci@localhost:5432/ckdci
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           pytest -q
 
